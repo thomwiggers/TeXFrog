@@ -19,6 +19,7 @@ import pytest
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _STY_PATH = _PROJECT_ROOT / "latex" / "texfrog.sty"
+_NICODEMUS_STY_PATH = _PROJECT_ROOT / "resources" / "nicodemus.sty"
 _TUTORIAL_DIR = _PROJECT_ROOT / "examples" / "tutorial-cryptocode-quickstart"
 
 needs_pdflatex = pytest.mark.skipif(
@@ -480,14 +481,6 @@ def test_user_macro_file(tmp_path):
 # texfrog init round-trip: scaffold → pdflatex
 # ---------------------------------------------------------------------------
 
-needs_nicodemus = pytest.mark.skipif(
-    shutil.which("kpsewhich") is None
-    or subprocess.run(
-        ["kpsewhich", "nicodemus.sty"], capture_output=True
-    ).returncode != 0,
-    reason="nicodemus.sty not installed",
-)
-
 
 @needs_pdflatex
 @pytest.mark.xfail(
@@ -522,9 +515,8 @@ def test_init_cryptocode_proof_compiles(tmp_path):
 
 
 @needs_pdflatex
-@needs_nicodemus
 @pytest.mark.xfail(
-    reason="nicodemus.sty not on CTAN; init template may also have macro conflicts",
+    reason="init template may have macro conflicts",
     strict=False,
 )
 def test_init_nicodemus_proof_compiles(tmp_path):
@@ -537,6 +529,7 @@ def test_init_nicodemus_proof_compiles(tmp_path):
     assert result.exit_code == 0
 
     shutil.copy2(_STY_PATH, tmp_path / "texfrog.sty")
+    shutil.copy2(_NICODEMUS_STY_PATH, tmp_path / "nicodemus.sty")
 
     result = subprocess.run(
         ["pdflatex", "-interaction=nonstopmode", "-no-shell-escape", "proof.tex"],
