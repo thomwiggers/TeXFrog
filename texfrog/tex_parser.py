@@ -6,6 +6,7 @@ that uses the texfrog.sty package.
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import Optional
@@ -486,7 +487,7 @@ def parse_tex_proofs(tex_path: Path) -> list[Proof]:
     # --- macros (global) ---
     macros: list[str] = _extract_one_arg(text, "tfmacrofile")
     for macro_rel in macros:
-        macro_path = (base_dir / macro_rel.strip()).resolve()
+        macro_path = Path(os.path.normpath(base_dir / macro_rel.strip()))
         if not macro_path.is_relative_to(base_dir):
             raise ValueError(
                 f"Macro path '{macro_rel}' resolves outside the proof directory."
@@ -496,7 +497,7 @@ def parse_tex_proofs(tex_path: Path) -> list[Proof]:
     preambles = _extract_one_arg(text, "tfpreamble")
     preamble_rel: Optional[str] = preambles[-1].strip() if preambles else None
     if preamble_rel:
-        preamble_path = (base_dir / preamble_rel).resolve()
+        preamble_path = Path(os.path.normpath(base_dir / preamble_rel))
         if not preamble_path.is_relative_to(base_dir):
             raise ValueError(
                 f"Preamble path '{preamble_rel}' resolves outside the proof directory."
@@ -513,7 +514,7 @@ def parse_tex_proofs(tex_path: Path) -> list[Proof]:
         source = source.strip()
         label = label.strip()
         file_rel = file_rel.strip()
-        file_path = (base_dir / file_rel).resolve()
+        file_path = Path(os.path.normpath(base_dir / file_rel))
         if not file_path.is_relative_to(base_dir):
             raise ValueError(
                 f"Commentary path '{file_rel}' for '{source}:{label}' resolves "
