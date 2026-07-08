@@ -206,6 +206,17 @@ computing $f(k)$ directly.
 COMMENTARY_G2 = r"""The final game.
 """
 
+GITIGNORE = """*.aux
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.toc
+*.pdf
+texfrog_html/
+"""
+
 
 def get_templates(package: str) -> dict[str, tuple[str, str]]:
     """Return template files for the given package profile.
@@ -225,11 +236,15 @@ def get_templates(package: str) -> dict[str, tuple[str, str]]:
         "commentary/Red1.tex": (COMMENTARY_RED1.lstrip("\n"), "commentary for Red1"),
         "commentary/G2.tex": (COMMENTARY_G2.lstrip("\n"), "commentary for G2"),
     }
+    common_files = {
+        ".gitignore": (GITIGNORE, "git ignore rules"),
+    }
     if package == "cryptocode":
         return {
             "proof.tex": (CRYPTOCODE_TEX.lstrip("\n"), "proof document"),
             "macros.tex": (CRYPTOCODE_MACROS.lstrip("\n"), "custom macros"),
             **commentary_files,
+            **common_files,
         }
     elif package == "nicodemus":
         return {
@@ -238,6 +253,7 @@ def get_templates(package: str) -> dict[str, tuple[str, str]]:
             # nicodemus is not on CTAN, so ship it inside the scaffold.
             "nicodemus.sty": (_read_resource("nicodemus.sty"), "nicodemus package"),
             **commentary_files,
+            **common_files,
         }
     else:
         raise ValueError(f"Unknown package '{package}'. Use 'cryptocode' or 'nicodemus'.")

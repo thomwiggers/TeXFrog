@@ -26,6 +26,7 @@ def test_get_templates_returns_expected_files(package: str):
     assert "commentary/G1.tex" in templates
     assert "commentary/Red1.tex" in templates
     assert "commentary/G2.tex" in templates
+    assert ".gitignore" in templates
     for filename, (content, description) in templates.items():
         assert len(content) > 0
         assert len(description) > 0
@@ -49,6 +50,13 @@ def test_cryptocode_templates_do_not_bundle_sty():
     assert "nicodemus.sty" not in get_templates("cryptocode")
 
 
+@pytest.mark.parametrize("package", ["cryptocode", "nicodemus"])
+def test_gitignore_covers_latex_build_artifacts_and_html_output(package: str):
+    content, _ = get_templates(package)[".gitignore"]
+    for pattern in ("*.aux", "*.log", "*.pdf", "*.synctex.gz", "texfrog_html/"):
+        assert pattern in content
+
+
 # ---------------------------------------------------------------------------
 # CLI tests
 # ---------------------------------------------------------------------------
@@ -65,7 +73,8 @@ def test_init_creates_files_in_new_directory(tmp_path: Path):
     assert (target / "commentary" / "G1.tex").exists()
     assert (target / "commentary" / "Red1.tex").exists()
     assert (target / "commentary" / "G2.tex").exists()
-    assert "Created 6 file(s)" in result.output
+    assert (target / ".gitignore").exists()
+    assert "Created 7 file(s)" in result.output
 
 
 def test_init_creates_files_in_existing_directory(tmp_path: Path):
@@ -88,6 +97,7 @@ def test_init_nicodemus(tmp_path: Path):
     assert sty.exists()
     assert r"\ProvidesPackage{nicodemus}" in sty.read_text()
     assert r"\tfmacrofile{nicodemus.sty}" in tex_content
+    assert (tmp_path / ".gitignore").exists()
 
 
 def test_init_cryptocode_is_default(tmp_path: Path):
@@ -113,7 +123,7 @@ def test_init_skips_existing_files(tmp_path: Path):
 
 
 def test_init_all_existing_writes_nothing(tmp_path: Path):
-    for name in ("proof.tex", "macros.tex"):
+    for name in ("proof.tex", "macros.tex", ".gitignore"):
         (tmp_path / name).write_text("existing")
     commentary_dir = tmp_path / "commentary"
     commentary_dir.mkdir()

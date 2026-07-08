@@ -109,7 +109,7 @@ The fastest way to get started without Python is to copy the [tutorial-cryptocod
 
 ### Starting with the Python CLI
 
-The fastest way to start a new proof is with `texfrog init`. This creates a minimal, runnable proof (`proof.tex`, `macros.tex`, and `commentary/*.tex`) with comments explaining each field.
+The fastest way to start a new proof is with `texfrog init`. This creates a minimal, runnable proof (`proof.tex`, `macros.tex`, `commentary/*.tex`, and a `.gitignore`) with comments explaining each field.
 
 ```bash
 # Scaffold a new proof in the current directory using cryptocode for pseudocode
