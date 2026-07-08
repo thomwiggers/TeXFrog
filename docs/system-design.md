@@ -359,7 +359,8 @@ INPUT can be a `.tex` file with TeXFrog commands or a directory containing `proo
 ### `texfrog init`
 
 Scaffolds a new proof directory with a `proof.tex` file containing TeXFrog commands,
-a `macros.tex` file, and a `commentary/` subdirectory with starter commentary files.
+a `macros.tex` file, a `commentary/` subdirectory with starter commentary files, and
+a `.gitignore` covering LaTeX build artifacts and the default `texfrog html build` output.
 The `--package` option selects the template flavour (default: `cryptocode`).
 The `nicodemus` scaffold additionally bundles `nicodemus.sty` (copied from the
 repository's `resources/` directory and registered via `\tfmacrofile{nicodemus.sty}`)
