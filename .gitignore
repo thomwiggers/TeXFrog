@@ -18,3 +18,4 @@ examples/example-ntor/
 
 # Claude Code
 .claude/settings.local.json
+.claude/worktrees/**
