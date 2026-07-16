@@ -189,6 +189,21 @@ Add warnings:
 - `proof/CLAUDE.md`: mention markers + `\tfcropdefault` in "How TeXFrog works
   here" and the renumbering/extension checklist.
 
+## Open questions / possible issues
+
+Accepted for now (fine as designed), flagged for revisiting if they bite:
+
+- **Placement constraint (depth 0 only).** Segments must start at block depth 0,
+  so an `\If…\EndIf` block is one atomic segment — no cropping *within* a large
+  conditional block. Acceptable given the current source structure.
+- **Removal-only segments surface.** A hop that only *deletes* a `\tfonly` line
+  marks its segment active and renders the neighborhood, even though the PDF
+  shows no highlight for pure removals today. Kept: it keeps the reader oriented
+  at the deletion site.
+- **Stub coalescing.** Contiguous unchanged segments collapse into one stub with
+  joined captions. Alternative (one stub per segment) not chosen; revisit if the
+  joined caption gets unwieldy.
+
 ## Out of scope
 
 - Line-level fold/context view (rejected; see Approach).
