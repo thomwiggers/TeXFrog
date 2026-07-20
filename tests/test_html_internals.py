@@ -9,6 +9,7 @@ import pytest
 
 from texfrog.model import Game, Proof
 from texfrog.output.html import (
+    _BUILTIN_MATHJAX_MACROS,
     _build_wrapper_template,
     _extract_mathjax_macros,
     _find_svg_converter,
@@ -302,6 +303,16 @@ class TestExtractMathjaxMacros:
     def test_empty_macros_list(self, tmp_path):
         result = _extract_mathjax_macros([], tmp_path)
         assert result == ""
+
+
+class TestBuiltinMathjaxMacros:
+    """MathJax has no built-in \\ensuremath, unlike real LaTeX, so a
+    \\tfdescription or game name containing \\ensuremath{...} would
+    otherwise render as an undefined-control-sequence error in the
+    browser."""
+
+    def test_defines_ensuremath_as_identity(self):
+        assert r"\providecommand{\ensuremath}[1]{#1}" == _BUILTIN_MATHJAX_MACROS
 
 
 # ---------------------------------------------------------------------------

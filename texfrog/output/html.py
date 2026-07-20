@@ -380,6 +380,15 @@ def _check_single_page(pdf_path: Path, game_label: str) -> None:
 # ---------------------------------------------------------------------------
 
 
+# \ensuremath is valid in real LaTeX (used e.g. by the LaTeX-side
+# \tfgamename definition in _pdf_to_svg's wrapper), but MathJax's TeX input
+# processor has no built-in \ensuremath. Without this, a \tfdescription or
+# game name containing \ensuremath{...} renders as an "undefined control
+# sequence" error in the browser. Since MathJax content is always inside
+# math delimiters already, \ensuremath can just emit its argument as-is.
+_BUILTIN_MATHJAX_MACROS = r"\providecommand{\ensuremath}[1]{#1}"
+
+
 def _extract_mathjax_macros(macro_paths: list[str], proof_dir: Path) -> str:
     """Extract LaTeX macro definitions from user macro files for MathJax.
 
@@ -723,10 +732,13 @@ def generate_html(
             "related_games": game.related_games,
         })
 
+    user_mathjax_macros = _extract_mathjax_macros(proof.macros, proof_dir)
+    mathjax_macros = _BUILTIN_MATHJAX_MACROS + "\n" + user_mathjax_macros
+
     template = _jinja_env.get_template("index.html.j2")
     html = template.render(
         games_json=json.dumps(games_data, ensure_ascii=False, indent=2),
-        mathjax_macros=_extract_mathjax_macros(proof.macros, proof_dir),
+        mathjax_macros=mathjax_macros,
     )
 
     (output_dir / "index.html").write_text(html, encoding="utf-8")
