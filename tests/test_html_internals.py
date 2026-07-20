@@ -271,8 +271,8 @@ class TestExtractMathjaxMacros:
             encoding="utf-8",
         )
         result = _extract_mathjax_macros(["macros.tex"], tmp_path)
-        # The opening line has unbalanced braces, so it should be skipped
-        assert result == ""
+        # The opening line has unbalanced braces, so it should be skipped.
+        assert result == _BUILTIN_MATHJAX_MACROS
 
     def test_skips_non_macro_lines(self, tmp_path):
         macro_file = tmp_path / "macros.tex"
@@ -283,7 +283,7 @@ class TestExtractMathjaxMacros:
             encoding="utf-8",
         )
         result = _extract_mathjax_macros(["macros.tex"], tmp_path)
-        assert result == ""
+        assert result == _BUILTIN_MATHJAX_MACROS
 
     def test_multiple_files(self, tmp_path):
         (tmp_path / "a.tex").write_text(
@@ -298,21 +298,28 @@ class TestExtractMathjaxMacros:
 
     def test_missing_file_skipped(self, tmp_path):
         result = _extract_mathjax_macros(["nonexistent.tex"], tmp_path)
-        assert result == ""
+        assert result == _BUILTIN_MATHJAX_MACROS
 
     def test_empty_macros_list(self, tmp_path):
         result = _extract_mathjax_macros([], tmp_path)
-        assert result == ""
+        assert result == _BUILTIN_MATHJAX_MACROS
 
+    def test_ensuremath_defined_even_with_no_user_macros(self, tmp_path):
+        # Regression test: \tfdescription/\tfgamename content containing
+        # \ensuremath{...} used to render as an "undefined control
+        # sequence" error in the browser because MathJax has no built-in
+        # \ensuremath, unlike real LaTeX.
+        result = _extract_mathjax_macros([], tmp_path)
+        assert r"\providecommand{\ensuremath}[1]{#1}" in result
 
-class TestBuiltinMathjaxMacros:
-    """MathJax has no built-in \\ensuremath, unlike real LaTeX, so a
-    \\tfdescription or game name containing \\ensuremath{...} would
-    otherwise render as an undefined-control-sequence error in the
-    browser."""
-
-    def test_defines_ensuremath_as_identity(self):
-        assert r"\providecommand{\ensuremath}[1]{#1}" == _BUILTIN_MATHJAX_MACROS
+    def test_ensuremath_still_defined_alongside_user_macros(self, tmp_path):
+        macro_file = tmp_path / "macros.tex"
+        macro_file.write_text(
+            r"\newcommand{\foo}{bar}" "\n", encoding="utf-8",
+        )
+        result = _extract_mathjax_macros(["macros.tex"], tmp_path)
+        assert r"\providecommand{\ensuremath}[1]{#1}" in result
+        assert r"\newcommand{\foo}{bar}" in result
 
 
 # ---------------------------------------------------------------------------

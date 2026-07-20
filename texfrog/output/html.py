@@ -390,7 +390,7 @@ _BUILTIN_MATHJAX_MACROS = r"\providecommand{\ensuremath}[1]{#1}"
 
 
 def _extract_mathjax_macros(macro_paths: list[str], proof_dir: Path) -> str:
-    """Extract LaTeX macro definitions from user macro files for MathJax.
+    """Build the MathJax macro block: built-ins plus harvested user macros.
 
     Collects lines that start with ``\\newcommand``, ``\\renewcommand``,
     ``\\providecommand``, ``\\DeclareMathOperator``, or ``\\def`` so that
@@ -409,7 +409,7 @@ def _extract_mathjax_macros(macro_paths: list[str], proof_dir: Path) -> str:
         "\\newcommand", "\\renewcommand", "\\providecommand",
         "\\DeclareMathOperator", "\\def",
     )
-    collected: list[str] = []
+    collected: list[str] = [_BUILTIN_MATHJAX_MACROS]
     for rel_path in macro_paths:
         src = (proof_dir / rel_path).resolve()
         try:
@@ -732,13 +732,10 @@ def generate_html(
             "related_games": game.related_games,
         })
 
-    user_mathjax_macros = _extract_mathjax_macros(proof.macros, proof_dir)
-    mathjax_macros = _BUILTIN_MATHJAX_MACROS + "\n" + user_mathjax_macros
-
     template = _jinja_env.get_template("index.html.j2")
     html = template.render(
         games_json=json.dumps(games_data, ensure_ascii=False, indent=2),
-        mathjax_macros=mathjax_macros,
+        mathjax_macros=_extract_mathjax_macros(proof.macros, proof_dir),
     )
 
     (output_dir / "index.html").write_text(html, encoding="utf-8")
